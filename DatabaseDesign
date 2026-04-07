@@ -1,0 +1,63 @@
+CREATE TABLE companies (  company_id INT PRIMARY KEY,  
+#company_id to uniquely identify every company
+name VARCHAR(255) NOT NULL);
+
+# Since companies can have multiple warehouses therefore we need different tables for warehouses and companies and connect them using foreign key
+
+CREATE TABLE warehouses (
+    warehouse_id INT PRIMARY KEY, # uniquely identifies warehouse
+    company_id INT NOT NULL, #foreign key constraint
+    name VARCHAR(255),
+    location TEXT,
+    FOREIGN KEY (company_id) REFERENCES companies(company_id)
+);
+# Keep Track of all the inventory at warehouses
+
+CREATE TABLE inventory (
+inventory_id INT PRIMARY KEY, 
+# To identify which type inventory it is (eg any particular product etc)
+warehouse_id INT NOT NULL, 
+# Foreign Key to link warehouse and identify which warehouse has which product inventory
+product_id BIGINT NOT NULL,
+# Foreign Key to link inventory and identify which product inventory it is.
+quantity INT NOT NULL DEFAULT 0 CHECK(quantity>=0) ,
+FOREIGN KEY (warehouse_id) REFERENCES warehouses(warehouse_id),
+FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+# Since all inventory would require which product they contain thus we also require products table , also we add a foreign key to inventory to keep track of particular product inventory.
+CREATE TABLE products (
+    product_id INT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
+    );
+# Mapping SUppliers and their information
+CREATE TABLE suppliers (
+    supplier_id BIGINT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    contact_info TEXT
+);
+# Product Sold by Suppliers
+
+CREATE TABLE supplier_products (
+    supplier_id INT,
+    product_id INT,
+    price DECIMAL(10,2),
+    PRIMARY KEY (supplier_id, product_id), 
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+
+
+CREATE TABLE inventory_transactions (
+    transaction_id INT PRIMARY KEY,
+    warehouse_id INT NOT NULL,
+    product_id INT NOT NULL,
+    change_type BOOLEAN, 
+    # if product added to inventory true else false
+    quantity_change INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  # to track change of inventory time.
+    FOREIGN KEY (warehouse_id) REFERENCES warehouses(warehouse_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
